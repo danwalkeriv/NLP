@@ -2,43 +2,7 @@ import sys
 import os
 import re
 import pprint
-"""
-    complex case as follows:
 
-    <td class="value">ouster (followed by &ldquo;@cs.stanford.edu&rdquo;)</td>
-    <script> obfuscate('stanford.edu','jurafsky'); </script>
-    <td class="value">teresa.lynn (followed by "@stanford.edu")</td>
-    <dd>	<em>melissa&#x40;graphics.stanford.edu</em>
-    <address>engler WHERE stanford DOM edu</address>
-    email: pal at cs stanford edu,
-    d-l-w-h-@-s-t-a-n-f-o-r-d-.-e-d-u
-    <dd>	<em>ada&#x40;graphics.stanford.edu</em>
-    Email: uma at cs dot stanford dot edu
-    hager at cs dot jhu dot edu
-    funding at Stanford comes
-    (Fedora) Server at cs.stanford.edu Port 80
-"""
-
-email_regexes = r'''
-                                                             # regex patterns for email
-        (([\w-]+|[\w-]+\.[\w-]+)                             # kokaisel, gary.kokaisel, kokaisel-, gary-kokaisel-
-        (\s.?\(f.*y.*)?                                      # followed by
-        (\s?(@|&.*;)\s?|\s(at|where)\s)                      # @, @ , at , where ,&#x40;,
-        ([\w-]+|[\w-]+([\.;]|\sdo?t\s|\s)[\w-]+)             # gmail., ics.bjtu, ics;bjtu, ics dot bjtu, -ics-bjtu-
-        ([\.;]|\s(do?t|DOM)\s|\s)                            # ., ;, dot , dt , DOM
-        (-?e-?d-?u|-?n-?e-?t|com|net|biz|org|us)\b)          # .edu, .com, net, -n-e-t, -e-d-u
-        |
-        (obfuscate\('(\w+\.edu)','(\w+)'\))                  # obfuscate('stanford.edu','jurafsky')
-        '''
-phone_regexes = r'''
-                         # pattern for phone
-        \(?(\d{3})\)?    # area code is 3 digits, e.g. (650), 650
-        [ -]?            # separator is - or space or nothing, e.g. 650-XXX, 650 XXX, (650)XXX
-        (\d{3})          # trunk is 3 digits, e.g. 800
-        [ -]             # separator is - or space
-        (\d{4})          # rest of number is 4 digits, e.g. 0987
-        \D+              # should have at least one non digit character at the end
-        '''
 """
 TODO
 This function takes in a filename along with the file object (actually
@@ -65,30 +29,7 @@ def process_file(name, f):
     # sys.stderr.write('[process_file]\tprocessing file: %s\n' % (path))
     res = []
     for line in f:
-        # match email
-        matches = re.findall(email_regexes ,line, re.VERBOSE|re.I) # ignore case
-        for m in matches:
-            email = ""
-            if len(m[-1]) != 0:
-                email = '%s@%s' % (m[-1], m[-2])
-            else:
-                if m[1] == "Server":
-                    # skip "server at" sentence
-                    continue
-                email = '%s@%s.%s' % (m[1].replace("-", ""),
-                                      m[6].replace(";", ".")
-                                          .replace(" dot ", ".")
-                                          .replace("-", "")
-                                          .replace(" ", "."),
-                                      m[-4].replace("-", ""))
-            res.append((name,'e',email))
-
-        # match phone number
-        matches = re.findall(phone_regexes, line, re.VERBOSE)
-        for m in matches:
-            phone = '%s-%s-%s' % m
-            res.append((name, 'p', phone))
-
+        print(f)
     return res
 
 """
