@@ -40,65 +40,40 @@ class NaiveBayes:
     """NaiveBayes initialization"""
     self.FILTER_STOP_WORDS = False
     self.stopList = set(self.readFile('../data/english.stop'))
-    self.numFolds = 10     
-    
+    self.numFolds = 10
+
     self.total= 0
-    from collections import defaultdict    
+    from collections import defaultdict
     self.vocab = defaultdict(lambda: 1)
-   
-   
+
+
   #############################################################################
   # TODO TODO TODO TODO TODO 
-  
+
   def classify(self, words):
     """ TODO
       'words' is a list of words to classify. Return 'pos' or 'neg' classification.
     """
-    _class = ''   
-    pos = 0
-    neg = 0
-    for word in words:
-        cat = 'pos'
-        w_c = self.vocab[(word, cat)]
-        t_c = self.vocab[cat]
-        pos += math.log((w_c + 1.0) / (t_c + len(self.vocab)))
-        
-        cat = 'neg'
-        w_c = self.vocab[(word, cat)]
-        t_c = self.vocab[cat]
-        neg += math.log((w_c + 1.0) / (t_c + len(self.vocab)))
-       
-    if pos - neg > 0:
-        _class = 'pos'
-    else:
-        _class = 'neg'
-        
+    _class = 'pos'
     return _class
-  
 
   def addExample(self, klass, words):
     """
      * TODO
      * Train your model on an example document with label klass ('pos' or 'neg') and
      * words, a list of strings.
-     * You should store whatever data structures you use for your classifier 
+     * You should store whatever data structures you use for your classifier
      * in the NaiveBayes class.
      * Returns nothing
     """
-    self.vocab[klass] += 1
-    self.total += 1
-    for word in words:
-        self.vocab[word] += 1
-        self.vocab[(word, klass)] += 1
-        self.vocab[klass] += 1
-    
+
   # TODO TODO TODO TODO TODO 
   #############################################################################
-  
-  
+
+
   def readFile(self, fileName):
     """
-     * Code for reading a file.  you probably don't want to modify anything here, 
+     * Code for reading a file.  you probably don't want to modify anything here,
      * unless you don't like the way we segment files.
     """
     contents = []
@@ -106,17 +81,17 @@ class NaiveBayes:
     for line in f:
       contents.append(line)
     f.close()
-    result = self.segmentWords('\n'.join(contents)) 
+    result = self.segmentWords('\n'.join(contents))
     return result
 
-  
+
   def segmentWords(self, s):
     """
      * Splits lines on whitespace for file reading
     """
     return s.split()
 
-  
+
   def trainSplit(self, trainDir):
     """Takes in a trainDir, returns one TrainSplit with train set."""
     split = self.TrainSplit()
@@ -143,7 +118,7 @@ class NaiveBayes:
 
   def crossValidationSplits(self, trainDir):
     """Returns a lsit of TrainSplits corresponding to the cross validation splits."""
-    splits = [] 
+    splits = []
     posTrainFileNames = os.listdir('%s/pos/' % trainDir)
     negTrainFileNames = os.listdir('%s/neg/' % trainDir)
     #for fileName in trainFileNames:
@@ -179,14 +154,14 @@ class NaiveBayes:
       guess = self.classify(words)
       labels.append(guess)
     return labels
-  
+
   def buildSplits(self, args):
     """Builds the splits for training/testing"""
-    trainData = [] 
+    trainData = []
     testData = []
     splits = []
     trainDir = args[0]
-    if len(args) == 1: 
+    if len(args) == 1:
       print '[INFO]\tPerforming %d-fold cross-validation on data set:\t%s' % (self.numFolds, trainDir)
 
       posTrainFileNames = os.listdir('%s/pos/' % trainDir)
@@ -231,17 +206,17 @@ class NaiveBayes:
       negTestFileNames = os.listdir('%s/neg/' % testDir)
       for fileName in posTestFileNames:
         example = self.Example()
-        example.words = self.readFile('%s/pos/%s' % (testDir, fileName)) 
+        example.words = self.readFile('%s/pos/%s' % (testDir, fileName))
         example.klass = 'pos'
         split.test.append(example)
       for fileName in negTestFileNames:
         example = self.Example()
-        example.words = self.readFile('%s/neg/%s' % (testDir, fileName)) 
+        example.words = self.readFile('%s/neg/%s' % (testDir, fileName))
         example.klass = 'neg'
         split.test.append(example)
       splits.append(split)
     return splits
-  
+
   def filterStopWords(self, words):
     """Filters stop words."""
     filtered = []
@@ -255,10 +230,10 @@ class NaiveBayes:
 def main():
   nb = NaiveBayes()
   (options, args) = getopt.getopt(sys.argv[1:], 'f')
-  #(options, args) = [('-f', '')], ['../data/imdb1'] 
+  #(options, args) = [('-f', '')], ['../data/imdb1']
   if ('-f','') in options:
     nb.FILTER_STOP_WORDS = True
-  
+
   splits = nb.buildSplits(args)
   avgAccuracy = 0.0
   fold = 0
@@ -270,7 +245,7 @@ def main():
       if nb.FILTER_STOP_WORDS:
         words =  classifier.filterStopWords(words)
       classifier.addExample(example.klass, words)
-  
+
     for example in split.test:
       words = example.words
       if nb.FILTER_STOP_WORDS:
@@ -281,7 +256,7 @@ def main():
 
     accuracy = accuracy / len(split.test)
     avgAccuracy += accuracy
-    print '[INFO]\tFold %d Accuracy: %f' % (fold, accuracy) 
+    print '[INFO]\tFold %d Accuracy: %f' % (fold, accuracy)
     fold += 1
   avgAccuracy = avgAccuracy / fold
   print '[INFO]\tAccuracy: %f' % avgAccuracy
