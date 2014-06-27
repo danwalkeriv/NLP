@@ -3,10 +3,10 @@ class Sentence:
 
   def __init__(self, sentence=[]):
     if(type(sentence) == type([])):
-      self.data = list(sentence) 
+      self.data = list(sentence)
     else:
       self.data = list(sentence.data)
-  
+
   def getErrorSentence(self):
     """Returns a list of strings with the sentence containing all errors."""
     errorSentence = []
@@ -62,7 +62,7 @@ class Sentence:
   def isEmpty(self):
     return len(self.data) == 0
 
-  def append(self, item):    
+  def append(self, item):
     self.data.append(item)
 
   def __len__(self):

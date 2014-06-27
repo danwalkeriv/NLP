@@ -9,7 +9,7 @@ class SpellingResult:
   def __init__(self, correct, total):
     self.numCorrect = correct
     self.numTotal = total
-  
+
   def getAccuracy(self):
     if self.numTotal == 0:
       return 0.0
