@@ -1,35 +1,3 @@
-import re
-
-_COUNTRIES = ['new york', 'australia', 'greece', 'california' ]
-
-_RE_LOCATION = re.compile(r'<LOCATION>\s*?(.*?)\s*?</LOCATION>')
-
-if False:
-    text = '<em><ORGANIZATION>Stanford</ORGANIZATION>, <LOCATION>California</LOCATION></em>,'
-    matches = _RE_LOCATION.finditer(text)
-    print [m.group(1) for m in matches]
-    exit()
-    
-_RE_MARKUP = re.compile(r'<.*?>')
-    
-def clean_markup(text): 
-    cleaned = _RE_MARKUP.sub('', text)
-    #print 'clean_markup(%s) = "%s"' % (text, cleaned)
-    return cleaned
-
-def get_locations(data):
-    #print type(query)
-    text = '\n'.join(query.snip for query in data)
-    #print text
-    #print type(text)
-       
-    matches = _RE_LOCATION.finditer(text)
-    locations = [clean_markup(m.group(1).lower()) for m in matches]
-    loc_dict = {}
-    for loc in locations:
-        loc_dict[loc] = loc_dict.get(loc,0) + 1
-    sorted_locations = sorted(loc_dict.keys(), key = lambda k : -loc_dict[k])    
-    return sorted_locations
 
 # defines the components of a query result from Google.
 class GoogleQuery:
@@ -152,61 +120,20 @@ class Googling:
     def guessLocation(self, data):
         #TODO: use the GoogleQuery object for landmark to generate a tuple of the location
         # of the landmark
-        #print(data[1])
-        
-        #print '-' * 80
-        locations = get_locations(data)
-        locations = [loc for loc in locations
-                if ('island' not in loc 
-                and 'parthenon' not in loc)]
-                
-        locations.sort(key = lambda k : k != 'stanford')        
-        
-        countries = [loc for loc in locations if loc in _COUNTRIES]
-        cities = [loc for loc in locations if loc not in _COUNTRIES]
-        
-        #print locations
-        
-        if len(countries) >= 1:
-            country = countries[0]
-        elif len(cities) >= 2:
-            country = cities[1]
-        else:
-            country = ''
-            
-        if len(cities) >= 1:
-            city = cities[0]
-        elif len(countries) >= 2:
-            city = countries[1]
-        else:
-            country = '' 
-
-        return Location(city, country)         
-    
-       
-        if len(locations) >= 2:
-            ret = Location(locations[0], locations[1])
-        elif len(locations) == 1:
-            ret = Location(locations[0], '')    
-        else:
-            ret = Location('', '')
-        #print ret
-        
-        return ret
+        print(data[1])
+        return Location('', '')
     
     # loops through each of the data associated with each query and passes it into the
     # guessLocation method, which returns the guess of the user
     def processQueries(self, queryData):
-        #TODO: this todo is optional. this is for anyone who might want to write any initialization code that should 
-        # only be performed once.
+        #TODO: this todo is optional. this is for anyone who might want to write any initialization code that should only be performed once.
         guesses = [''] * len(queryData)
         for i in range(len(queryData)):
             guesses[i] = self.guessLocation(queryData[i])
         return guesses
     
     # prints out the results as described in the handout
-    def printResults(self, correctCities, incorrectCities, noguessCities, correctCountries, incorrectCountries, 
-                noguessCountries, landmarks, guesses, gold):
+    def printResults(self, correctCities, incorrectCities, noguessCities, correctCountries, incorrectCountries, noguessCountries, landmarks, guesses, gold):
         print('LANDMARK\tYOUR GUESSED CITY\tCORRECT CITY/CITIES\tYOUR GUESSED COUNTRY\tCORRECT COUNTRY')
         correctGuesses = set(correctCities).intersection(set(correctCountries))
         noGuesses = set(noguessCities).union(set(noguessCountries))
